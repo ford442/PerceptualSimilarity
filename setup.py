@@ -1,7 +1,7 @@
 
-import setuptools
+import setuptools;
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    long_description = fh.read();
 setuptools.setup(
      name='lpips',  
      version='0.1.4',
@@ -20,4 +20,5 @@ setuptools.setup(
          "License :: OSI Approved :: BSD License",
          "Operating System :: OS Independent",
      ],
+     ext_modules=cythonize("./lpips/lpips.py");
  )
