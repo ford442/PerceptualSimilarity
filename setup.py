@@ -3,7 +3,7 @@ import setuptools;
 with open("README.md", "r") as fh:
     long_description = fh.read();
 setuptools.setup(
-     ext_modules=cythonize("lpips.py");
+     ext_modules=cythonize("lpips.py"),
      name='lpips',  
      version='0.1.4',
      author="Richard Zhang",
