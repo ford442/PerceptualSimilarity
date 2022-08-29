@@ -19,7 +19,8 @@ def spatial_average(in_tens, keepdim=True):
 def upsample(in_tens, out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
-global lded=False
+global lded
+lded=False
 class LPIPS(nn.Module):
     def __init__(self, pretrained=True, net='alex', version='0.1', lpips=True, spatial=False, 
         pnet_rand=False, pnet_tune=False, use_dropout=True, model_path=None, eval_mode=True, verbose=True):
