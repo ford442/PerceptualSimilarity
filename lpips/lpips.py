@@ -11,6 +11,7 @@ import torch.nn;
 from functools import lru_cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
+import cython;
 
 @lru_cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
