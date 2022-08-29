@@ -1,10 +1,10 @@
 
 from setuptools import setup;
-from distutils.extension import Extension
+from distutils.extension import Extension;
 from Cython.Build import cythonize;
-extensions=[Extension('lpips',['lpips.py'])]
+extensions = [Extension('lpips',['lpips/lpips.py'])];
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    long_description = fh.read();
 setuptools.setup(
      name='lpips',  
      version='0.1',
