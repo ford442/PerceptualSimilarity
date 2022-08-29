@@ -68,7 +68,6 @@ class LPIPS(nn.Module):
         if(eval_mode):
             self.half()
             self.eval()
-            self.cuda()
     @class_cache(maxsize=40)
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
