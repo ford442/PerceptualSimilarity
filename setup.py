@@ -1,7 +1,8 @@
 
-from setuptools import Extension,setup;
+from setuptools import setup;
+from distutils.extension import Extension
 from Cython.Build import cythonize;
-ext_modules=[Extension("lpips",["lpips/lpips.py"])]
+extensions=[Extension('lpips',['lpips.py'])]
 with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
@@ -21,5 +22,5 @@ setuptools.setup(
          "License :: OSI Approved :: BSD License",
          "Operating System :: OS Independent",
      ],
-     ext_modules = cythonize(ext_modules),
+     ext_modules = cythonize(extensions),
  )
