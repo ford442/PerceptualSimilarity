@@ -12,6 +12,8 @@ from functools import lru_cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
 
+global model_path;
+
 @lru_cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim);
@@ -62,7 +64,7 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
-                self.load_state_dict(torch.load(model_path, map_location=lambda storage,loc:storage.cuda(0)), strict=False) 
+                    self.load_state_dict(torch.load(model_path, map_location=lambda storage,loc:storage.cuda(0)), strict=False) 
         if(eval_mode):
             self.eval()
     @class_cache(maxsize=40)
