@@ -11,7 +11,6 @@ import torch.nn;
 from functools import lru_cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
-import cython;
 
 @lru_cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
@@ -32,7 +31,7 @@ class LPIPS(nn.Module):
         self.pnet_tune = pnet_tune
         self.pnet_rand = pnet_rand
         self.spatial = spatial
-        self.lpips = lpips
+        self.lpips = lpips # false means baseline of just averaging all layers
         self.version = version
         self.scaling_layer = ScalingLayer()
         if(self.pnet_type in ['vgg','vgg16']):
@@ -53,7 +52,7 @@ class LPIPS(nn.Module):
             self.lin3 = NetLinLayer(self.chns[3], use_dropout=use_dropout)
             self.lin4 = NetLinLayer(self.chns[4], use_dropout=use_dropout)
             self.lins = [self.lin0,self.lin1,self.lin2,self.lin3,self.lin4]
-            if(self.pnet_type=='squeeze'):
+            if(self.pnet_type=='squeeze'): # 7 layers for squeezenet
                 self.lin5 = NetLinLayer(self.chns[5], use_dropout=use_dropout)
                 self.lin6 = NetLinLayer(self.chns[6], use_dropout=use_dropout)
                 self.lins+=[self.lin5,self.lin6]
@@ -63,9 +62,9 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
-                 # if os.path.exists('/content/RAMDRIVE/loded')!=True:
-                 #   os.mkdir('/content/RAMDRIVE/loded')
-            self.load_state_dict(torch.load(model_path,map_location=("cpu")), strict=False)  #map_location=lambda storage,loc:storage.cuda(0)), strict=False) 
+                if(verbose):
+                    print('Loading model from: %s'%model_path)
+                self.load_state_dict(torch.load(model_path, map_location=lambda storage,loc:storage.cuda(0)), strict=False)          
         if(eval_mode):
             self.eval()
     @class_cache(maxsize=40)
