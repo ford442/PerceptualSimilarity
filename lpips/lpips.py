@@ -12,8 +12,6 @@ from functools import lru_cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
 
-global lded;
-
 @lru_cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim);
@@ -21,7 +19,7 @@ def spatial_average(in_tens, keepdim=True):
 def upsample(in_tens, out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
-lded=False
+global lded=False
 class LPIPS(nn.Module):
     def __init__(self, pretrained=True, net='alex', version='0.1', lpips=True, spatial=False, 
         pnet_rand=False, pnet_tune=False, use_dropout=True, model_path=None, eval_mode=True, verbose=True):
