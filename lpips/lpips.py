@@ -66,7 +66,9 @@ class LPIPS(nn.Module):
                     print('Loading model from: %s'%model_path)
                 self.load_state_dict(torch.load(model_path, map_location=lambda storage,loc:storage.cuda(0)), strict=False)          
         if(eval_mode):
+            self.half()
             self.eval()
+            self.cuda()
     @class_cache(maxsize=40)
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
