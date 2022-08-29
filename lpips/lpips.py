@@ -21,7 +21,7 @@ def spatial_average(in_tens, keepdim=True):
 def upsample(in_tens, out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
-
+lded=False
 class LPIPS(nn.Module):
     def __init__(self, pretrained=True, net='alex', version='0.1', lpips=True, spatial=False, 
         pnet_rand=False, pnet_tune=False, use_dropout=True, model_path=None, eval_mode=True, verbose=True):
@@ -64,6 +64,8 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
+                if lded==False:
+                    lded=True
                     self.load_state_dict(torch.load(model_path, map_location=lambda storage,loc:storage.cuda(0)), strict=False) 
         if(eval_mode):
             self.eval()
