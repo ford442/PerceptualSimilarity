@@ -62,8 +62,8 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
-                if os.path.exists('/content/Ramdrive/loded')!=True:
-                    os.mkdir('/content/Ramdrive/loded')
+                if os.path.exists('/content/RAMDRIVE/loded')!=True:
+                    os.mkdir('/content/RAMDRIVE/loded')
                     self.load_state_dict(torch.load(model_path, map_location=lambda storage,loc:storage.cuda(0)), strict=False) 
         if(eval_mode):
             self.eval()
