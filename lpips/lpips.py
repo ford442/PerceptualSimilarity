@@ -8,7 +8,7 @@ from torch.autograd import Variable;
 import numpy as np;
 from . import pretrained_networks as pn;
 import torch.nn;
-from functools import lru_cache as class;
+from functools import lru_cache as cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
 
