@@ -21,8 +21,8 @@ def upsample(in_tens, out_HW=(64,64)):
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
 
 class LPIPS(nn.Module):
-    def __init__(self, pretrained=True, net='alex', version='0.1', lpips=True, spatial=False, 
-        pnet_rand=False, pnet_tune=False, use_dropout=True, model_path=None, eval_mode=True, verbose=True):
+    def __init__(self, pretrained=True, net='squeeze', version='0.1', lpips=True, spatial=True, 
+        pnet_rand=False, pnet_tune=False, use_dropout=False, model_path=None, eval_mode=True, verbose=False):
         super(LPIPS, self).__init__()
         if(verbose):
             print('Setting up [%s] perceptual loss: trunk [%s], v[%s], spatial [%s]'%
@@ -62,7 +62,7 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
-                self.load_state_dict(torch.load(model_path, map_location="cpu"), strict=False) 
+                self.load_state_dict(torch.load(model_path, map_location=torch.device("cuda:0")), strict=False) 
     @class_cache(maxsize=40)
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
