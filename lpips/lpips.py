@@ -8,14 +8,14 @@ from torch.autograd import Variable;
 import numpy as np;
 from . import pretrained_networks as pn;
 import torch.nn;
-from functools import lru_cache;
+from functools import lru_cache as class;
 from methodtools import lru_cache as class_cache;
 import lpips;
 
-@lru_cache(maxsize=40)
+@cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim);
-@lru_cache(maxsize=40)
+@cache(maxsize=40)
 def upsample(in_tens, out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
@@ -174,7 +174,7 @@ class DSSIM(FakeNet):
             ret_var = ret_var.cuda()
         return ret_var
 
-@lru_cache(maxsize=40)
+@cache(maxsize=40)
 def print_network(net):
     num_params = 0
     for param in net.parameters():
