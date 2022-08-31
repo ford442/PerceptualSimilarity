@@ -11,12 +11,14 @@ import torch.nn;
 from functools import lru_cache as cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
+import cython;
+from typing import TypeVar, Tuple;
 
 @cache(maxsize=40)
-def spatial_average(in_tens, keepdim=True):
+def spatial_average(int in_tens, bool keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim);
 @cache(maxsize=40)
-def upsample(in_tens, out_HW=(64,64)):
+def upsample(int in_tens, tuple out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
 
