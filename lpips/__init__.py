@@ -6,21 +6,21 @@ from __future__ import print_function
 import numpy as np
 import torch
 # from torch.autograd import Variable
-
+import cython
 from lpips.trainer import *
 from lpips.lpips import *
 
-def normalize_tensor(in_feat,eps=1e-10):
+def normalize_tensor(int in_feat,complex eps=1e-10):
     norm_factor = torch.sqrt(torch.sum(in_feat**2,dim=1,keepdim=True))
     return in_feat/(norm_factor+eps)
 
-def l2(p0, p1, range=255.):
+def l2(p0, p1,float range=255.):
     return .5*np.mean((p0 / range - p1 / range)**2)
 
-def psnr(p0, p1, peak=255.):
+def psnr(p0, p1,float peak=255.):
     return 10*np.log10(peak**2/np.mean((1.*p0-1.*p1)**2))
 
-def dssim(p0, p1, range=255.):
+def dssim(p0, p1,float range=255.):
     from skimage.measure import compare_ssim
     return (1 - compare_ssim(p0, p1, data_range=range, multichannel=True)) / 2.
 
@@ -75,7 +75,6 @@ def load_image(path):
     else:
         import matplotlib.pyplot as plt        
         img = (255*plt.imread(path)[:,:,:3]).astype('uint8')
-
     return img
 
 def tensor2im(image_tensor, imtype=np.uint8, cent=1., factor=255./2.):
@@ -84,21 +83,13 @@ def tensor2im(image_tensor, imtype=np.uint8, cent=1., factor=255./2.):
     return image_numpy.astype(imtype)
 
 def im2tensor(image, imtype=np.uint8, cent=1., factor=255./2.):
-    return torch.Tensor((image / factor - cent)
-                        [:, :, :, np.newaxis].transpose((3, 2, 0, 1)))
+    return torch.Tensor((image / factor - cent)[:, :, :, np.newaxis].transpose((3, 2, 0, 1)))
 
 def tensor2vec(vector_tensor):
     return vector_tensor.data.cpu().numpy()[:, :, 0, 0]
 
-
-def voc_ap(rec, prec, use_07_metric=False):
-    """ ap = voc_ap(rec, prec, [use_07_metric])
-    Compute VOC AP given precision and recall.
-    If use_07_metric is true, uses the
-    VOC 07 11 point method (default:False).
-    """
+def voc_ap(float rec,float prec,bool use_07_metric=False):
     if use_07_metric:
-        # 11 point metric
         ap = 0.
         for t in np.arange(0., 1.1, 0.1):
             if np.sum(rec >= t) == 0:
@@ -107,20 +98,10 @@ def voc_ap(rec, prec, use_07_metric=False):
                 p = np.max(prec[rec >= t])
             ap = ap + p / 11.
     else:
-        # correct AP calculation
-        # first append sentinel values at the end
         mrec = np.concatenate(([0.], rec, [1.]))
         mpre = np.concatenate(([0.], prec, [0.]))
-
-        # compute the precision envelope
         for i in range(mpre.size - 1, 0, -1):
             mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
-
-        # to calculate area under PR curve, look for points
-        # where X axis (recall) changes value
         i = np.where(mrec[1:] != mrec[:-1])[0]
-
-        # and sum (\Delta recall) * prec
         ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
     return ap
-
