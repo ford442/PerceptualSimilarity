@@ -31,7 +31,6 @@ class squeezenet(torch.nn.Module):
         if not requires_grad:
             for param in self.parameters():
                 param.requires_grad = False
-
     def forward(self, X):
         h = self.slice1(X)
         h_relu1 = h
@@ -49,9 +48,7 @@ class squeezenet(torch.nn.Module):
         h_relu7 = h
         vgg_outputs = namedtuple("SqueezeOutputs", ['relu1','relu2','relu3','relu4','relu5','relu6','relu7'])
         out = vgg_outputs(h_relu1,h_relu2,h_relu3,h_relu4,h_relu5,h_relu6,h_relu7)
-
         return out
-
 
 class alexnet(torch.nn.Module):
     def __init__(self, requires_grad=False, pretrained=True):
@@ -76,7 +73,6 @@ class alexnet(torch.nn.Module):
         if not requires_grad:
             for param in self.parameters():
                 param.requires_grad = False
-
     def forward(self, X):
         h = self.slice1(X)
         h_relu1 = h
@@ -90,7 +86,6 @@ class alexnet(torch.nn.Module):
         h_relu5 = h
         alexnet_outputs = namedtuple("AlexnetOutputs", ['relu1', 'relu2', 'relu3', 'relu4', 'relu5'])
         out = alexnet_outputs(h_relu1, h_relu2, h_relu3, h_relu4, h_relu5)
-
         return out
 
 class vgg16(torch.nn.Module):
@@ -116,7 +111,6 @@ class vgg16(torch.nn.Module):
         if not requires_grad:
             for param in self.parameters():
                 param.requires_grad = False
-
     def forward(self, X):
         h = self.slice1(X)
         h_relu1_2 = h
@@ -130,10 +124,7 @@ class vgg16(torch.nn.Module):
         h_relu5_3 = h
         vgg_outputs = namedtuple("VggOutputs", ['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3', 'relu5_3'])
         out = vgg_outputs(h_relu1_2, h_relu2_2, h_relu3_3, h_relu4_3, h_relu5_3)
-
         return out
-
-
 
 class resnet(torch.nn.Module):
     def __init__(self, requires_grad=False, pretrained=True, num=18):
@@ -149,7 +140,6 @@ class resnet(torch.nn.Module):
         elif(num==152):
             self.net = tv.resnet152(pretrained=pretrained)
         self.N_slices = 5
-
         self.conv1 = self.net.conv1
         self.bn1 = self.net.bn1
         self.relu = self.net.relu
@@ -158,7 +148,6 @@ class resnet(torch.nn.Module):
         self.layer2 = self.net.layer2
         self.layer3 = self.net.layer3
         self.layer4 = self.net.layer4
-
     def forward(self, X):
         h = self.conv1(X)
         h = self.bn1(h)
@@ -173,8 +162,6 @@ class resnet(torch.nn.Module):
         h_conv4 = h
         h = self.layer4(h)
         h_conv5 = h
-
         outputs = namedtuple("Outputs", ['relu1','conv2','conv3','conv4','conv5'])
         out = outputs(h_relu1, h_conv2, h_conv3, h_conv4, h_conv5)
-
         return out
