@@ -12,10 +12,10 @@ from functools import lru_cache as cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
 
-@cache(maxsize=40)
+#@cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim);
-@cache(maxsize=40)
+#@cache(maxsize=40)
 def upsample(in_tens, out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
@@ -63,7 +63,7 @@ class LPIPS(nn.Module):
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
                 self.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")), strict=False) 
-    @class_cache(maxsize=40)
+    #@class_cache(maxsize=40)
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
             in0 = 2 * in0  - 1
@@ -97,7 +97,7 @@ class ScalingLayer(nn.Module):
         super(ScalingLayer, self).__init__()
         self.register_buffer('shift', torch.Tensor([-.030,-.088,-.188])[None,:,None,None])
         self.register_buffer('scale', torch.Tensor([.458,.448,.450])[None,:,None,None])
-    @class_cache(maxsize=None)
+    #@class_cache(maxsize=None)
     def forward(self, inp):
         return (inp - self.shift) / self.scale
 
@@ -108,7 +108,7 @@ class NetLinLayer(nn.Module):
         layers = [nn.Dropout(),] if(use_dropout) else []
         layers += [nn.Conv2d(chn_in, chn_out, 1, stride=1, padding=0, bias=False),]
         self.model = nn.Sequential(*layers)
-    @class_cache(maxsize=None)
+    #@class_cache(maxsize=None)
     def forward(self, x):
         return self.model(x)
 
@@ -124,7 +124,7 @@ class Dist2LogitLayer(nn.Module):
         if(use_sigmoid):
             layers += [nn.Sigmoid(),]
         self.model = nn.Sequential(*layers)
-    @class_cache(maxsize=40)
+    #@class_cache(maxsize=40)
     def forward(self,d0,d1,eps=0.1):
         return self.model.forward(torch.cat((d0,d1,d0-d1,d0/(d1+eps),d1/(d0+eps)),dim=1))
 
@@ -134,7 +134,7 @@ class BCERankingLoss(nn.Module):
         self.net = Dist2LogitLayer(chn_mid=chn_mid)
         # self.parameters = list(self.net.parameters())
         self.loss = torch.nn.BCELoss()
-    @class_cache(maxsize=40)
+    #@class_cache(maxsize=40)
     def forward(self, d0, d1, judge):
         per = (judge+1.)/2.
         self.logit = self.net.forward(d0,d1)
@@ -174,7 +174,7 @@ class DSSIM(FakeNet):
             ret_var = ret_var.cuda()
         return ret_var
 
-@cache(maxsize=40)
+#@cache(maxsize=40)
 def print_network(net):
     num_params = 0
     for param in net.parameters():
