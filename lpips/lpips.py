@@ -62,7 +62,7 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
-                self.load_state_dict(torch.load(model_path,map_location=None), strict=True) 
+                self.load_state_dict(torch.load(model_path,map_location=None),strict=False) 
     #@class_cache(maxsize=40)
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
@@ -95,8 +95,8 @@ class LPIPS(nn.Module):
 class ScalingLayer(nn.Module):
     def __init__(self):
         super(ScalingLayer, self).__init__()
-        self.register_buffer('shift', torch.Tensor([-.030,-.088,-.188],device=torch.device("cuda:0"))[None,:,None,None])
-        self.register_buffer('scale', torch.Tensor([.458,.448,.450],device=torch.device("cuda:0"))[None,:,None,None])
+        self.register_buffer('shift', torch.tensor([-.030,-.088,-.188],device=torch.device("cuda:0"))[None,:,None,None])
+        self.register_buffer('scale', torch.tensor([.458,.448,.450],device=torch.device("cuda:0"))[None,:,None,None])
     @class_cache(maxsize=40)
     def forward(self, inp):
         return (inp - self.shift) / self.scale
