@@ -95,8 +95,8 @@ class LPIPS(nn.Module):
 class ScalingLayer(nn.Module):
     def __init__(self):
         super(ScalingLayer, self).__init__()
-        self.register_buffer('shift', torch.Tensor([-.030,-.088,-.188])[None,:,None,None])
-        self.register_buffer('scale', torch.Tensor([.458,.448,.450])[None,:,None,None])
+        self.register_buffer('shift', torch.Tensor([-.030,-.088,-.188],device=torch.device("cuda:0"))[None,:,None,None])
+        self.register_buffer('scale', torch.Tensor([.458,.448,.450],device=torch.device("cuda:0"))[None,:,None,None])
     @class_cache(maxsize=40)
     def forward(self, inp):
         return (inp - self.shift) / self.scale
@@ -156,7 +156,7 @@ class L2(FakeNet):
         elif(self.colorspace=='Lab'):
             value = lpips.l2(lpips.tensor2np(lpips.tensor2tensorlab(in0.data,to_norm=False)), 
                 lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)), range=100.).astype('float')
-            ret_var = Variable( torch.Tensor((value,) ) )
+            ret_var = Variable( torch.Tensor((value,),device=torch.device("cuda:0") ) )
             if(self.use_gpu):
                 ret_var = ret_var.cuda()
             return ret_var
@@ -169,7 +169,7 @@ class DSSIM(FakeNet):
         elif(self.colorspace=='Lab'):
             value = lpips.dssim(lpips.tensor2np(lpips.tensor2tensorlab(in0.data,to_norm=False)), 
                 lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)), range=100.).astype('float')
-        ret_var = Variable( torch.Tensor((value,) ) )
+        ret_var = Variable( torch.Tensor((value,),device=torch.device("cuda:0") ) )
         if(self.use_gpu):
             ret_var = ret_var.cuda()
         return ret_var
