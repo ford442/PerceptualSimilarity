@@ -17,5 +17,5 @@ setuptools.setup(
          "License :: OSI Approved :: BSD License",
          "Operating System :: OS Independent",
      ],
-     ext_modules = cythonize(extensions),
+    ext_modules=cythonize(extensions,compiler_directives={'infer_types':True,language_level:3}),
  )
