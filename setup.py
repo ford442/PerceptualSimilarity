@@ -9,8 +9,8 @@ import cython
 import pyximport; 
 pyximport.install(pyimport=True);
 extensions = [Extension('lpips',['lpips/lpips.py'])];
-with open("README.md", "r") as fh:
-    long_description = fh.read();
+#with open("README.md", "r") as fh:
+#    long_description = fh.read();
 setuptools.setup(
      name='lpips',  
      version='0.1',
