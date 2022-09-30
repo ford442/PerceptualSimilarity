@@ -3,7 +3,7 @@ from setuptools import setup;
 setup()
 from distutils.extension import Extension;
 from Cython.Build import cythonize;
-import cython
+#import cython
 import pyximport; 
 pyximport.install(pyximport=False,pyimport=True);
 extensions = [Extension('lpips',['lpips/lpips.py'])];
