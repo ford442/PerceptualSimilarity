@@ -28,5 +28,5 @@ setuptools.setup(
          "License :: OSI Approved :: BSD License",
          "Operating System :: OS Independent",
      ],
-     ext_modules = cythonize("lpips/lpips.py"),
+     ext_modules = cythonize("lpips/lpips.py",compiler_directives={'language_level' : "3"}),
  )
