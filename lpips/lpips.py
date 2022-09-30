@@ -62,7 +62,7 @@ class LPIPS(nn.Module):
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
                     
-                self.load_state_dict(torch.load(model_path,map_location=torch.device("cpu")),strict=True) ##
+                self.load_state_dict(torch.load(model_path,map_location=torch.device("cpu")),strict=False) ##
                 
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
