@@ -12,10 +12,9 @@ from functools import lru_cache as cache;
 from methodtools import lru_cache as class_cache;
 import lpips;
 
-#@cache(maxsize=40)
 def spatial_average(in_tens, keepdim=True):
     return in_tens.mean([2,3],keepdim=keepdim);
-#@cache(maxsize=40)
+
 def upsample(in_tens, out_HW=(64,64)):
     in_H, in_W = in_tens.shape[2], in_tens.shape[3]
     return nn.Upsample(size=out_HW, mode='bilinear', align_corners=False)(in_tens)
@@ -62,8 +61,9 @@ class LPIPS(nn.Module):
                     import inspect
                     import os
                     model_path = os.path.abspath(os.path.join(inspect.getfile(self.__init__), '..', 'weights/v%s/%s.pth'%(version,net)))
-                self.load_state_dict(torch.load(model_path,map_location=None),strict=False) 
-    #@class_cache(maxsize=40)
+                    
+                self.load_state_dict(torch.load(model_path,map_location=torch.device("cpu")),strict=True) ##
+                
     def forward(self, in0, in1, retPerLayer=False, normalize=False):
         if normalize: # turn on this flag if input is [0,1] so it can be adjusted to [-1, +1]
             in0 = 2 * in0  - 1
@@ -76,14 +76,14 @@ class LPIPS(nn.Module):
             diffs[kk] = (feats0[kk]-feats1[kk])**2
         if(self.lpips):
             if(self.spatial):
-                res = [upsample(self.lins[kk](diffs[kk]), out_HW=in0.shape[2:]) for kk in range(self.L)]
+                res=[upsample(self.lins[kk](diffs[kk]), out_HW=in0.shape[2:]) for kk in range(self.L)]
             else:
                 res = [spatial_average(self.lins[kk](diffs[kk]), keepdim=True) for kk in range(self.L)]
         else:
             if(self.spatial):
                 res = [upsample(diffs[kk].sum(dim=1,keepdim=True), out_HW=in0.shape[2:]) for kk in range(self.L)]
             else:
-                res = [spatial_average(diffs[kk].sum(dim=1,keepdim=True), keepdim=True) for kk in range(self.L)]
+                res=[spatial_average(diffs[kk].sum(dim=1,keepdim=True), keepdim=True) for kk in range(self.L)]
         val = 0
         for l in range(self.L):
             val += res[l]
@@ -95,9 +95,8 @@ class LPIPS(nn.Module):
 class ScalingLayer(nn.Module):
     def __init__(self):
         super(ScalingLayer, self).__init__()
-        self.register_buffer('shift', torch.tensor([-.030,-.088,-.188],device=torch.device("cuda:0"))[None,:,None,None])
-        self.register_buffer('scale', torch.tensor([.458,.448,.450],device=torch.device("cuda:0"))[None,:,None,None])
-    @class_cache(maxsize=40)
+        self.register_buffer('shift', torch.tensor([-.030,-.088,-.188],device=torch.device("cuda:0"),requires_grad=False)[None,:,None,None])
+        self.register_buffer('scale', torch.tensor([.458,.448,.450],device=torch.device("cuda:0"),requires_grad=False)[None,:,None,None])
     def forward(self, inp):
         return (inp - self.shift) / self.scale
 
@@ -108,7 +107,6 @@ class NetLinLayer(nn.Module):
         layers = [nn.Dropout(),] if(use_dropout) else []
         layers += [nn.Conv2d(chn_in, chn_out, 1, stride=1, padding=0, bias=False),]
         self.model = nn.Sequential(*layers)
-    #@class_cache(maxsize=40)
     def forward(self, x):
         return self.model(x)
 
@@ -124,7 +122,6 @@ class Dist2LogitLayer(nn.Module):
         if(use_sigmoid):
             layers += [nn.Sigmoid(),]
         self.model = nn.Sequential(*layers)
-    @class_cache(maxsize=40)
     def forward(self,d0,d1,eps=0.1):
         return self.model.forward(torch.cat((d0,d1,d0-d1,d0/(d1+eps),d1/(d0+eps)),dim=1))
 
@@ -134,7 +131,6 @@ class BCERankingLoss(nn.Module):
         self.net = Dist2LogitLayer(chn_mid=chn_mid)
         # self.parameters = list(self.net.parameters())
         self.loss = torch.nn.BCELoss()
-    #@class_cache(maxsize=40)
     def forward(self, d0, d1, judge):
         per = (judge+1.)/2.
         self.logit = self.net.forward(d0,d1)
@@ -155,8 +151,8 @@ class L2(FakeNet):
             return value
         elif(self.colorspace=='Lab'):
             value = lpips.l2(lpips.tensor2np(lpips.tensor2tensorlab(in0.data,to_norm=False)), 
-                lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)), range=100.).astype('float')
-            ret_var = Variable( torch.Tensor((value,),device=torch.device("cuda:0") ) )
+                lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)),range=100.).astype('float')
+            ret_var = Variable(torch.tensor((value,),device=torch.device("cuda:0"),requires_grad=False))
             if(self.use_gpu):
                 ret_var = ret_var.cuda()
             return ret_var
@@ -165,16 +161,15 @@ class DSSIM(FakeNet):
     def forward(self, in0, in1, retPerLayer=None):
         assert(in0.size()[0]==1) # currently only supports batchSize 1
         if(self.colorspace=='RGB'):
-            value = lpips.dssim(1.*lpips.tensor2im(in0.data), 1.*lpips.tensor2im(in1.data), range=255.).astype('float')
+            value=lpips.dssim(1.*lpips.tensor2im(in0.data),1.*lpips.tensor2im(in1.data),range=255.).astype('float')
         elif(self.colorspace=='Lab'):
-            value = lpips.dssim(lpips.tensor2np(lpips.tensor2tensorlab(in0.data,to_norm=False)), 
-                lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)), range=100.).astype('float')
-        ret_var = Variable( torch.Tensor((value,),device=torch.device("cuda:0") ) )
+            value=lpips.dssim(lpips.tensor2np(lpips.tensor2tensorlab(in0.data,to_norm=False)), 
+                lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)),range=100.).astype('float')
+        ret_var=Variable(torch.tensor((value,),device=torch.device("cuda:0"),requires_grad=False))
         if(self.use_gpu):
             ret_var = ret_var.cuda()
         return ret_var
 
-#@cache(maxsize=40)
 def print_network(net):
     num_params = 0
     for param in net.parameters():
