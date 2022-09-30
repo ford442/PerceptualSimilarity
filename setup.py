@@ -2,9 +2,6 @@
 import setuptools
 from setuptools import Extension,setup; 
 from Cython.Build import cythonize;
-import cython
-import pyximport; 
-pyximport.install(pyimport=True);
 extensions = [Extension('lpips',['lpips/lpips.py'])];
 setuptools.setup(
      name='lpips',  
