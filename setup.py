@@ -2,6 +2,9 @@
 import setuptools
 from setuptools import Extension,setup; 
 from Cython.Build import cythonize;
+from Cython.Compiler import Options
+Options.infer_types = True
+Options.language_level = 3
 extensions = [Extension('lpips',['lpips/lpips.py'])];
 setuptools.setup(
      name='lpips',  
@@ -17,5 +20,5 @@ setuptools.setup(
          "License :: OSI Approved :: BSD License",
          "Operating System :: OS Independent",
      ],
-    ext_modules=cythonize(extensions,compiler_directives={'infer_types':True,language_level:3}),
+    ext_modules=cythonize(extensions),
  )
