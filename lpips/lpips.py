@@ -93,8 +93,8 @@ class LPIPS(nn.Module):
 class ScalingLayer(nn.Module):
     def __init__(self):
         super(ScalingLayer, self).__init__()
-        self.register_buffer('shift', torch.tensor([-.030,-.088,-.188],device=torch.device("cuda:0")""",requires_grad=False""")[None,:,None,None])
-        self.register_buffer('scale', torch.tensor([.458,.448,.450],device=torch.device("cuda:0")""",requires_grad=False""")[None,:,None,None])
+        self.register_buffer('shift', torch.tensor([-.030,-.088,-.188],device=torch.device("cuda:0"))[None,:,None,None])
+        self.register_buffer('scale', torch.tensor([.458,.448,.450],device=torch.device("cuda:0"))[None,:,None,None])
     def forward(self, inp):
         return (inp - self.shift) / self.scale
 
