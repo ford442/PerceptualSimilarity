@@ -150,7 +150,7 @@ class L2(FakeNet):
         elif(self.colorspace=='Lab'):
             value = lpips.l2(lpips.tensor2np(lpips.tensor2tensorlab(in0.data,to_norm=False)), 
                 lpips.tensor2np(lpips.tensor2tensorlab(in1.data,to_norm=False)),range=100.).astype('float')
-            ret_var = Variable(torch.tensor((value,),device=torch.device("cuda:0")""",requires_grad=False"""))
+            ret_var = Variable(torch.tensor((value,),device=torch.device("cuda:0")))
             if(self.use_gpu):
                 ret_var = ret_var.cuda()
             return ret_var
